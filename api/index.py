@@ -15,6 +15,7 @@ app = Flask(__name__)
 def view_func():
     color = request.args.get('color', os.getenv('DEFAULT_COLOR'))
     height = request.args.get('height', os.getenv('DEFAULT_HEIGHT'))
+    max_age = request.args.get('max-age', os.getenv('DEFAULT_MAX_AGE'))
     size = request.args.get('size', os.getenv('DEFAULT_SIZE'))
     width = request.args.get('width', os.getenv('DEFAULT_WIDTH'))
 
@@ -40,4 +41,4 @@ def view_func():
     bytes = io.BytesIO()
     image.save(bytes, 'png')
     bytes.seek(0)
-    return send_file(bytes, 'image/png', cache_timeout=0)
+    return send_file(bytes, 'image/png', cache_timeout=int(max_age))
