@@ -40,4 +40,4 @@ def view_func():
     bytes = io.BytesIO()
     image.save(bytes, 'png')
     bytes.seek(0)
-    return send_file(bytes, 'image/png')
+    return send_file(bytes, 'image/png', cache_timeout=0)
