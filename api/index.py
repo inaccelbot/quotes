@@ -354,6 +354,9 @@ def view_func():
     draw = Drawing(size=(width + 'px', height + 'px'))
     dy = 0
     for text in textwrap.wrap(response['content']):
+        dy -= 0.6
+    dy -= -0.6
+    for text in textwrap.wrap(response['content']):
         draw.add(
             draw.text(text,
                       dx=['0em'],
