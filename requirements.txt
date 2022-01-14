@@ -1,4 +1,4 @@
 Flask==1
-Pillow
 matplotlib
 requests
+svgwrite

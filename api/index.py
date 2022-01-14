@@ -1,4 +1,4 @@
-from PIL import Image, ImageDraw, ImageFont
+from svgwrite import Drawing
 from matplotlib import font_manager
 from flask import Flask, request, send_file
 
@@ -15,7 +15,6 @@ app = Flask(__name__)
 def view_func():
     color = request.args.get('color', os.getenv('DEFAULT_COLOR'))
     height = request.args.get('height', os.getenv('DEFAULT_HEIGHT'))
-    max_age = request.args.get('max-age', os.getenv('DEFAULT_MAX_AGE'))
     size = request.args.get('size', os.getenv('DEFAULT_SIZE'))
     width = request.args.get('width', os.getenv('DEFAULT_WIDTH'))
 
@@ -24,21 +23,42 @@ def view_func():
     quote = '{}\n\n- {}'.format('\n'.join(textwrap.wrap(response['content'])),
                                 response['author'])
 
-    image = Image.new('RGBA', (int(width), int(height)))
+    font_family = font_manager.get_font(
+        random.choice(font_manager.findSystemFonts())).family_name
 
-    font = ImageFont.truetype(random.choice(font_manager.findSystemFonts()),
-                              int(size))
+    font_style = random.choice(['normal', 'italic', 'oblique'])
+    font_weight = random.choice(['normal', 'bold', 'bolder', 'lighter'])
 
-    draw = ImageDraw.Draw(image)
-    multiline_textsize = draw.multiline_textsize(quote, font)
-    draw.multiline_text((image.size[0] / 2 - multiline_textsize[0] / 2,
-                         image.size[1] / 2 - multiline_textsize[1] / 2),
-                        quote,
-                        '#' + color,
-                        font,
-                        align='center')
+    draw = Drawing(size=(width + 'px', height + 'px'))
+    dy = 0
+    for text in textwrap.wrap(response['content']):
+        draw.add(
+            draw.text(text,
+                      dx=['0em'],
+                      dy=[str(dy) + 'em'],
+                      fill='#' + color,
+                      font_family=font_family,
+                      font_size=size + 'pt',
+                      font_style=font_style,
+                      font_weight=font_weight,
+                      text_anchor='middle',
+                      x=['50%'],
+                      y=['50%']))
+        dy += 1.2
+    dy += 1.2
+    draw.add(
+        draw.text('- {}'.format(response['author']),
+                  dx=['0em'],
+                  dy=[str(dy) + 'em'],
+                  fill='#' + color,
+                  font_family=font_family,
+                  font_size=size + 'pt',
+                  font_style=font_style,
+                  font_weight=font_weight,
+                  text_anchor='middle',
+                  x=['50%'],
+                  y=['50%']))
 
-    bytes = io.BytesIO()
-    image.save(bytes, 'png')
-    bytes.seek(0)
-    return send_file(bytes, 'image/png', cache_timeout=int(max_age))
+    return send_file(io.BytesIO(bytes(draw.tostring(), 'utf-8')),
+                     'image/svg+xml',
+                     cache_timeout=0)
