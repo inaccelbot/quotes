@@ -19,8 +19,8 @@ def view_func():
 
     response = requests.get('https://api.quotable.io/random').json()
 
-    quote = '{}\n\n- {}'.format('\n'.join(textwrap.wrap(response['content'])),
-                                response['author'])
+    author = response['author']
+    content = textwrap.wrap(response['content'])
 
     font_family = random.choice([
         'ABeeZee', 'Abel', 'Abhaya Libre', 'Abril Fatface', 'Aclonica', 'Acme',
@@ -352,11 +352,13 @@ def view_func():
     font_weight = random.choice(['normal', 'bold', 'bolder', 'lighter'])
 
     draw = Drawing(size=(width + 'px', height + 'px'))
-    dy = 0
-    for text in textwrap.wrap(response['content']):
-        dy -= 0.6
-    dy -= -0.6
-    for text in textwrap.wrap(response['content']):
+    draw.defs.add(
+        draw.style(
+            '@import url(https://fonts.googleapis.com/css?family={}'.format(
+                font_family.replace(' ', '+'))))
+
+    dy = -0.6 * len(content) - 1.2
+    for text in content:
         draw.add(
             draw.text(text,
                       dx=['0em'],
@@ -372,7 +374,7 @@ def view_func():
         dy += 1.2
     dy += 1.2
     draw.add(
-        draw.text('- {}'.format(response['author']),
+        draw.text('- {}'.format(author),
                   dx=['0em'],
                   dy=[str(dy) + 'em'],
                   fill='#' + color,
