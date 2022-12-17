@@ -388,4 +388,4 @@ def view_func():
 
     return send_file(io.BytesIO(bytes(draw.tostring(), 'utf-8')),
                      'image/svg+xml',
-                     cache_timeout=0)
+                     max_age=0)
