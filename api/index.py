@@ -17,7 +17,7 @@ def view_func():
     size = request.args.get('size', os.getenv('DEFAULT_SIZE'))
     width = request.args.get('width', os.getenv('DEFAULT_WIDTH'))
 
-    response = requests.get('https://api.quotable.io/random').json()
+    response = requests.get('https://quotable.vercel.app/random').json()
 
     author = response['author']
     content = textwrap.wrap(response['content'])
